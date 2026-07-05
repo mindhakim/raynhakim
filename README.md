@@ -1,5 +1,5 @@
 # 💫 About Me:
-Im currently working as a Social Media Specialist<br>Im open collaborating on Content Creation <br>Im learning Standup Comedy<br>Im a barca fan
+Indonesian Literature graduate from Universitas Indonesia who believes that storytelling goes beyond words and can also be found in sports. Currently exploring a passion for sports marketing, supported by continuous learning in writing and digital marketing.
 
 
 ## 🌐 Socials:
