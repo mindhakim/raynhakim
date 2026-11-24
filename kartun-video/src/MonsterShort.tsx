@@ -1,6 +1,8 @@
 import React from "react";
+import { Audio } from "@remotion/media";
 import {
   AbsoluteFill,
+  staticFile,
   Easing,
   Interactive,
   Sequence,
@@ -825,6 +827,23 @@ export const MonsterShort: React.FC = () => {
         </Sequence>
         <ForegroundLeaves />
       </World>
+
+      {/* Voiceover */}
+      <Sequence name="VO 1" from={0.1 * fps}>
+        <Audio src={staticFile("vo/vo1.mp3")} playbackRate={1.15} />
+      </Sequence>
+      <Sequence name="VO 2" from={3.5 * fps}>
+        <Audio src={staticFile("vo/vo2.mp3")} />
+      </Sequence>
+      <Sequence name="VO 3" from={8.1 * fps}>
+        <Audio src={staticFile("vo/vo3.mp3")} />
+      </Sequence>
+      <Sequence name="VO 5" from={15.3 * fps}>
+        <Audio src={staticFile("vo/vo5.mp3")} />
+      </Sequence>
+      <Sequence name="VO 6" from={21.3 * fps}>
+        <Audio src={staticFile("vo/vo6.mp3")} />
+      </Sequence>
 
       <Sequence name="Caption 1" from={0} durationInFrames={2.5 * fps}>
         <Caption text="Di hutan belantara, dekat sebuah gua..." />
