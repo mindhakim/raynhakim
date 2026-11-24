@@ -39,6 +39,18 @@ tidak perlu, dan kirim hasil akhirnya sebagai file MP4 (pakai SendUserFile).
 |---|---|---|
 | Monster hutan | `kartun-video/src/MonsterShort.tsx` (komponen `Monster`) | Gempal, berbulu ungu, 3 mata hijau, taring besar, selalu tersenyum, tangan panjang berkuku. Tinggal di hutan dekat gua. |
 | Anak kecil | `kartun-video/src/Character.tsx` | Kartun sederhana: kaos kuning, celana biru, rambut cokelat. |
+| **Vutu** | `kartun-video/src/vutuvuti/` (`VUTU` di `looks.ts`) | Kulit sawo matang, rahang kotak, rambut ikal pink, jersey pink bertulisan "vutu" (nomor 7). Lucu, riang, aktif, suka jahil ke Vuti. |
+| **Vuti** | `kartun-video/src/vutuvuti/` (`VUTI` di `looks.ts`) | Kulit sawo lebih cerah, rahang bulat, rambut punk (mohawk) hijau, jersey hijau bertulisan "vuti" (nomor 10). Kalem, chill, acuh, sering dijahili Vutu. |
+
+### Rig Vutu & Vuti
+
+- `Person.tsx` menggambar karakter dari pose dengan sendi kepala, leher, badan, bahu,
+  siku, tangan, pinggul, lutut, dan kaki, dalam 4 tampilan: `front`, `back`, `left`, `right`.
+- `poses.ts` berisi gerakan siap pakai: `idle`, `talk`, `walk`, `run`, `jump`, `kick`,
+  `wave`, `celebrate`, `shrug`, `sneak`, `poke`, `laugh`. Gerakan bisa dicampur dengan `mix()`.
+  Gerakan baru ditambahkan di file ini.
+- Ganti jersey sesuai cerita dengan `withJersey(VUTU, warna, warnaGelap)` dari `looks.ts`.
+- Contoh pemakaian: `src/vutuvuti/Showcase.tsx` (composition `VutuVutiShowcase` dan still `VutuVutiSheet`).
 
 Untuk episode baru dengan karakter yang sama, pakai ulang komponennya. Jangan
 menggambar ulang dari nol supaya bentuknya tetap konsisten.
@@ -52,6 +64,8 @@ sebagai `<Composition>` di `src/Root.tsx`.
 |---|---|
 | `Kartun` | Demo 12 detik, anak kecil menyapa (16:9) |
 | `MonsterShort` | Monster bakar ayam, 24 detik, dengan voice over (9:16) |
+| `VutuVutiShowcase` | Showcase gerakan Vutu & Vuti, 37 detik (16:9) |
+| `VutuVutiSheet` | Lembar karakter 4 sisi (gambar diam) |
 
 ### Render di sesi cloud
 
