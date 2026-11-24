@@ -50,6 +50,8 @@ tidak perlu, dan kirim hasil akhirnya sebagai file MP4 (pakai SendUserFile).
   `wave`, `celebrate`, `shrug`, `sneak`, `poke`, `laugh`. Gerakan bisa dicampur dengan `mix()`.
   Gerakan baru ditambahkan di file ini.
 - Ganti jersey sesuai cerita dengan `withJersey(VUTU, warna, warnaGelap)` dari `looks.ts`.
+- Versi 3D: `Person3D.tsx` (Three.js lewat `@remotion/three`), memakai Pose yang sama. Render 3D wajib
+  ditambah `--gl=angle`. Contoh: `src/vutuvuti/Test3D.tsx`.
 - Contoh pemakaian: `src/vutuvuti/Showcase.tsx` (composition `VutuVutiShowcase` dan still `VutuVutiSheet`).
 
 Untuk episode baru dengan karakter yang sama, pakai ulang komponennya. Jangan
@@ -66,6 +68,7 @@ sebagai `<Composition>` di `src/Root.tsx`.
 | `MonsterShort` | Monster bakar ayam, 24 detik, dengan voice over (9:16) |
 | `VutuVutiShowcase` | Showcase gerakan Vutu & Vuti, 37 detik (16:9) |
 | `VutuVutiSheet` | Lembar karakter 4 sisi (gambar diam) |
+| `VutuVuti3DTest` | Tes versi 3D Vutu & Vuti, 10,5 detik (16:9) |
 
 ### Render di sesi cloud
 
