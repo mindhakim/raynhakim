@@ -32,6 +32,8 @@ tidak perlu, dan kirim hasil akhirnya sebagai file MP4 (pakai SendUserFile).
 - Host `elevenlabsusercontent.com` sudah diizinkan di environment, jadi audio
   bisa diunduh dengan `curl`.
 - Tiap generasi memakai kredit pemilik. Jangan mengulang generasi untuk "retry".
+- Akun ElevenLabs pemilik masih paket gratis (kuota 10.000 kredit/bulan, tanpa hak komersial).
+  Kuota November 2026 sudah habis. Untuk Vuti dipakai suara **Samsul** (`AfkBqzsATOuueGnLAvJi`).
 
 ## Karakter tetap
 
@@ -78,6 +80,7 @@ sebagai `<Composition>` di `src/Root.tsx`.
 | `VutuVutiSheet` | Lembar karakter 4 sisi (gambar diam) |
 | `VutuVuti3DTest` | Tes versi 3D Vutu & Vuti, 10,5 detik (16:9) |
 | `EpisodePenalti` | **Gaya utama.** Vutu & Vuti episode "Penalti" di lapangan kampung saat senja, 20 detik (9:16) |
+| `EpisodeAfcon` / `EpisodeAfconSilent` | Vutu (jersey ala Senegal) & Vuti (jersey ala Maroko) bahas final AFCON 2025 dan putusan CAS. Versi bersuara butuh 13 klip suara lagi (lihat `src/vutuvuti/afcon/script.ts`); versi tanpa suara ±92 detik (9:16) |
 | `VutuVutiStreet` | Vutu & Vuti versi 3D manusia (gaya game era 2000-an) di jalanan kota, 13 detik (16:9) |
 
 ### Render di sesi cloud

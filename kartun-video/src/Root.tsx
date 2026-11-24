@@ -52,6 +52,15 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
       />
       <Composition
+        id="EpisodeAfconSilent"
+        component={EpisodeAfcon}
+        durationInFrames={afconFrames(30, true)}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{ silent: true }}
+      />
+      <Composition
         id="EpisodeAfcon"
         component={EpisodeAfcon}
         durationInFrames={afconFrames(30)}

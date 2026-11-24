@@ -43,17 +43,21 @@ export const OUTRO = 2.8;
 
 export type Slot = Line & { start: number; end: number; i: number };
 
-export const schedule = (): Slot[] => {
+// Silent version: no voice clips and a slightly slower pace so the subtitles are easy to read
+export const SILENT_RATE = 0.92;
+
+export const schedule = (silent = false): Slot[] => {
   let t = LEAD_IN;
+  const rate = silent ? SILENT_RATE : RATE;
   return LINES.map((l, i) => {
-    const d = l.dur / RATE;
-    const s: Slot = { ...l, start: t, end: t + d, i };
+    const d = l.dur / rate;
+    const s: Slot = { ...l, file: silent ? undefined : l.file, start: t, end: t + d, i };
     t += d + GAP;
     return s;
   });
 };
 
-export const totalSeconds = () => {
-  const s = schedule();
+export const totalSeconds = (silent = false) => {
+  const s = schedule(silent);
   return s[s.length - 1].end + OUTRO;
 };

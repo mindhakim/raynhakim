@@ -293,7 +293,7 @@ const Caption: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const Subtitle: React.FC<{ slot: Slot }> = ({ slot }) => (
+const Subtitle: React.FC<{ slot: Slot; big?: boolean }> = ({ slot, big }) => (
   <div
     style={{
       position: "absolute",
@@ -303,7 +303,7 @@ const Subtitle: React.FC<{ slot: Slot }> = ({ slot }) => (
       textAlign: "center",
       fontFamily: FONT,
       fontWeight: 800,
-      fontSize: 44,
+      fontSize: big ? 50 : 44,
       lineHeight: 1.18,
       color: slot.who === "vutu" ? "#FFFFFF" : "#FFE0E0",
       textShadow: "0 3px 0 #000, 0 0 10px rgba(0,0,0,0.8)",
@@ -385,11 +385,11 @@ const CAPTIONS = [
   "Tulis di komentar!",
 ];
 
-export const EpisodeAfcon: React.FC = () => {
+export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
-  const slots = schedule();
+  const slots = schedule(silent);
 
   // The current scene = the latest line that has started
   let si = 0;
@@ -663,10 +663,10 @@ export const EpisodeAfcon: React.FC = () => {
       <Sequence key={`cap${si}`} from={Math.round(slot.start * fps)}>
         <Caption text={CAPTIONS[si]} />
       </Sequence>
-      {t <= slot.end + 0.25 ? <Subtitle slot={slot} /> : null}
+      {t <= slot.end + 0.25 ? <Subtitle slot={slot} big={silent} /> : null}
     </AbsoluteFill>
   );
 };
 
-export const afconFrames = (fps: number) => Math.ceil(totalSeconds() * fps);
+export const afconFrames = (fps: number, silent = false) => Math.ceil(totalSeconds(silent) * fps);
 export const AFCON_LINES = LINES.length;
