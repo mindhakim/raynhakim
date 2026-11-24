@@ -5,6 +5,7 @@ import { VutuVutiSheet, VutuVutiShowcase } from "./vutuvuti/Showcase";
 import { VutuVuti3DTest } from "./vutuvuti/Test3D";
 import { VutuVutiStreet } from "./human/StreetTest";
 import { EpisodePenalti } from "./vutuvuti/EpisodePenalti";
+import { EpisodeAfcon, afconFrames } from "./vutuvuti/afcon/EpisodeAfcon";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -46,6 +47,14 @@ export const RemotionRoot: React.FC = () => {
         id="EpisodePenalti"
         component={EpisodePenalti}
         durationInFrames={600}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="EpisodeAfcon"
+        component={EpisodeAfcon}
+        durationInFrames={afconFrames(30)}
         fps={30}
         width={1080}
         height={1920}

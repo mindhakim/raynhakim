@@ -50,4 +50,7 @@ export type Look = {
   socks: string;
   boots: string;
   personality: "playful" | "chill";
+  // Optional national-style trim: colored bands across the chest, and the color of the jersey text
+  stripes?: string[];
+  textColor?: string;
 };

@@ -418,6 +418,9 @@ const Torso: React.FC<{ look: Look; view: "front" | "back" | "side" }> = ({ look
           strokeLinejoin="round"
         />
         <path d="M -38 -40 Q 0 -30 44 -40" stroke={look.jerseyShade} strokeWidth={8} fill="none" opacity={0.6} />
+        {(look.stripes ?? []).map((c, i) => (
+          <line key={c + i} x1={-34} y1={-150 + i * 8} x2={42} y2={-150 + i * 8} stroke={c} strokeWidth={8} />
+        ))}
       </g>
     );
   }
@@ -449,17 +452,20 @@ const Torso: React.FC<{ look: Look; view: "front" | "back" | "side" }> = ({ look
       )}
       {/* Side stripes */}
       <path d="M -70 -120 L -60 4 M 70 -120 L 60 4" stroke={look.jerseyShade} strokeWidth={10} />
+      {(look.stripes ?? []).map((c, i) => (
+        <line key={c + i} x1={-72} y1={-134 + i * 8} x2={72} y2={-134 + i * 8} stroke={c} strokeWidth={8} />
+      ))}
       {back ? (
         <>
-          <text x={0} y={-124} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={26} fill="white" stroke={OUT} strokeWidth={5} paintOrder="stroke">
+          <text x={0} y={-124} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={26} fill={look.textColor ?? "white"} stroke={OUT} strokeWidth={5} paintOrder="stroke">
             {look.name.toUpperCase()}
           </text>
-          <text x={0} y={-40} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={74} fill="white" stroke={OUT} strokeWidth={6} paintOrder="stroke">
+          <text x={0} y={-40} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={74} fill={look.textColor ?? "white"} stroke={OUT} strokeWidth={6} paintOrder="stroke">
             {look.number}
           </text>
         </>
       ) : (
-        <text x={0} y={-82} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={38} fill="white" stroke={OUT} strokeWidth={6} paintOrder="stroke">
+        <text x={0} y={-82} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={38} fill={look.textColor ?? "white"} stroke={OUT} strokeWidth={6} paintOrder="stroke">
           {look.sponsor}
         </text>
       )}

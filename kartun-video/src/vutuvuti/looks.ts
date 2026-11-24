@@ -45,3 +45,25 @@ export const withJersey = (look: Look, jersey: string, jerseyShade: string, sock
   jerseyShade,
   socks,
 });
+
+// Vutu in a Senegal-style kit: white with green-yellow-red trim
+export const VUTU_SENEGAL: Look = {
+  ...VUTU,
+  jersey: "#F5F5F0",
+  jerseyShade: "#D8D8D0",
+  stripes: ["#00853F", "#FDEF42", "#E31B23"],
+  textColor: "#00853F",
+  shorts: "#F5F5F0",
+  socks: "#F5F5F0",
+};
+
+// Vuti in a Morocco-style kit: red with green trim and green shorts
+export const VUTI_MOROCCO: Look = {
+  ...VUTI,
+  jersey: "#C1272D",
+  jerseyShade: "#93202A",
+  stripes: ["#006233"],
+  textColor: "#FFFFFF",
+  shorts: "#006233",
+  socks: "#C1272D",
+};
