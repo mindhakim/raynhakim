@@ -57,6 +57,11 @@ tidak perlu, dan kirim hasil akhirnya sebagai file MP4 (pakai SendUserFile).
   realistis (`idleR`, `walkR`, `runR`, `jumpR`, `waveR`). Contoh: `src/human/StreetTest.tsx`.
 - Contoh pemakaian: `src/vutuvuti/Showcase.tsx` (composition `VutuVutiShowcase` dan still `VutuVutiSheet`).
 
+**Gaya yang disukai pemilik: kartun 2D seperti video monster (brand 1).** Untuk episode Vutu & Vuti,
+pakai rig 2D (`Person.tsx`) dengan suasana yang digarap: langit dan cahaya, latar berlapis, partikel,
+kamera zoom/goyang, dan caption. Contoh acuan: `src/vutuvuti/EpisodePenalti.tsx`. Versi 3D (mainan
+dan manusia) hanya eksperimen; jangan dipakai kecuali diminta.
+
 Untuk episode baru dengan karakter yang sama, pakai ulang komponennya. Jangan
 menggambar ulang dari nol supaya bentuknya tetap konsisten.
 
@@ -72,6 +77,7 @@ sebagai `<Composition>` di `src/Root.tsx`.
 | `VutuVutiShowcase` | Showcase gerakan Vutu & Vuti, 37 detik (16:9) |
 | `VutuVutiSheet` | Lembar karakter 4 sisi (gambar diam) |
 | `VutuVuti3DTest` | Tes versi 3D Vutu & Vuti, 10,5 detik (16:9) |
+| `EpisodePenalti` | **Gaya utama.** Vutu & Vuti episode "Penalti" di lapangan kampung saat senja, 20 detik (9:16) |
 | `VutuVutiStreet` | Vutu & Vuti versi 3D manusia (gaya game era 2000-an) di jalanan kota, 13 detik (16:9) |
 
 ### Render di sesi cloud

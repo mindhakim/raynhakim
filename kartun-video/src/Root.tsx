@@ -4,6 +4,7 @@ import { MonsterShort } from "./MonsterShort";
 import { VutuVutiSheet, VutuVutiShowcase } from "./vutuvuti/Showcase";
 import { VutuVuti3DTest } from "./vutuvuti/Test3D";
 import { VutuVutiStreet } from "./human/StreetTest";
+import { EpisodePenalti } from "./vutuvuti/EpisodePenalti";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -40,6 +41,14 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1920}
         height={1080}
+      />
+      <Composition
+        id="EpisodePenalti"
+        component={EpisodePenalti}
+        durationInFrames={600}
+        fps={30}
+        width={1080}
+        height={1920}
       />
       <Still id="VutuVutiSheet" component={VutuVutiSheet} width={1920} height={1080} />
     </>
