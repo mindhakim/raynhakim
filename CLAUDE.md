@@ -52,6 +52,9 @@ tidak perlu, dan kirim hasil akhirnya sebagai file MP4 (pakai SendUserFile).
 - Ganti jersey sesuai cerita dengan `withJersey(VUTU, warna, warnaGelap)` dari `looks.ts`.
 - Versi 3D: `Person3D.tsx` (Three.js lewat `@remotion/three`), memakai Pose yang sama. Render 3D wajib
   ditambah `--gl=angle`. Contoh: `src/vutuvuti/Test3D.tsx`.
+- Versi 3D manusia (proporsi realistis, satu badan utuh dengan kerangka): `src/human/`.
+  `buildHuman.ts` membangun badan, `Human.tsx` menerapkan Pose, `realPoses.ts` berisi gerakan
+  realistis (`idleR`, `walkR`, `runR`, `jumpR`, `waveR`). Contoh: `src/human/StreetTest.tsx`.
 - Contoh pemakaian: `src/vutuvuti/Showcase.tsx` (composition `VutuVutiShowcase` dan still `VutuVutiSheet`).
 
 Untuk episode baru dengan karakter yang sama, pakai ulang komponennya. Jangan
@@ -69,6 +72,7 @@ sebagai `<Composition>` di `src/Root.tsx`.
 | `VutuVutiShowcase` | Showcase gerakan Vutu & Vuti, 37 detik (16:9) |
 | `VutuVutiSheet` | Lembar karakter 4 sisi (gambar diam) |
 | `VutuVuti3DTest` | Tes versi 3D Vutu & Vuti, 10,5 detik (16:9) |
+| `VutuVutiStreet` | Vutu & Vuti versi 3D manusia (gaya game era 2000-an) di jalanan kota, 13 detik (16:9) |
 
 ### Render di sesi cloud
 
