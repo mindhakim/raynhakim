@@ -5,6 +5,7 @@ import { VutuVutiSheet, VutuVutiShowcase } from "./vutuvuti/Showcase";
 import { VutuVuti3DTest } from "./vutuvuti/Test3D";
 import { VutuVutiStreet } from "./human/StreetTest";
 import { EpisodePenalti } from "./vutuvuti/EpisodePenalti";
+import { PENALTI_CINEMATIC_FRAMES, PenaltiCinematic } from "./vutuvuti/cinematic/PenaltiCinematic";
 import { EpisodeAfcon, afconFrames } from "./vutuvuti/afcon/EpisodeAfcon";
 
 export const RemotionRoot: React.FC = () => {
@@ -64,6 +65,14 @@ export const RemotionRoot: React.FC = () => {
         id="EpisodeAfcon"
         component={EpisodeAfcon}
         durationInFrames={afconFrames(30)}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="PenaltiCinematic"
+        component={PenaltiCinematic}
+        durationInFrames={PENALTI_CINEMATIC_FRAMES}
         fps={30}
         width={1080}
         height={1920}
