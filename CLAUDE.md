@@ -35,6 +35,27 @@ tidak perlu, dan kirim hasil akhirnya sebagai file MP4 (pakai SendUserFile).
 - Akun ElevenLabs pemilik masih paket gratis (kuota 10.000 kredit/bulan, tanpa hak komersial).
   Kuota November 2026 sudah habis. Untuk Vuti dipakai suara **Samsul** (`AfkBqzsATOuueGnLAvJi`).
 
+## Voice over dari rekaman pemilik (cara utama sekarang)
+
+Pemilik merekam sendiri dialognya (satu orang membawakan Vutu yang heboh dan Vuti yang datar),
+lalu Claude menyinkronkannya. Tidak memakai kredit ElevenLabs.
+
+1. Buat **lembar rekaman** dari naskah (contoh: `naskah/2026-11-24-afcon-lembar-rekaman.md`):
+   nomor, siapa, arahan nada, kalimat. Angka ditulis sebagai kata ("satu-nol").
+2. Pemilik merekam di aplikasi perekam bawaan HP, lalu mengirim file m4a ke chat.
+   Rekaman **jangan di-commit** (repo publik). Simpan di `kartun-video/public/vo/<episode>/user/` (di-gitignore).
+3. Transkrip per kata pakai faster-whisper (model `small`, bahasa `id`):
+   - Butuh host Hugging Face yang sudah diizinkan di environment; jalankan dengan `HF_HUB_DISABLE_XET=1`.
+   - Pasang di venv scratchpad: `python3 -m venv venv && ./venv/bin/pip install faster-whisper`.
+   - Ubah audio ke f32 16 kHz dengan ffmpeg dulu (PyAV bawaan tidak cocok), lalu `tools/vo/transcribe.py`.
+4. Petakan kalimat: buang salah mulai dan bacaan dobel (pakai **bacaan terakhir**), sambung bagian kalau perlu.
+   Potong per kalimat dengan pemangkasan berbasis energi, plus loudnorm (contoh: `tools/vo/cut_afcon_example.py`).
+   Skrip itu juga menulis modul TS berisi durasi, momen kata kunci, dan amplop gerak mulut per frame.
+5. **Verifikasi**: transkrip ulang tiap klip (`tools/vo/verify.py`) dan audio video final. Semua kalimat harus ada,
+   urut, tanpa kata terpotong dan tanpa dobel.
+6. Di animasi: momen penting mengikuti waktu kata (`events`), dan mulut mengikuti amplop suara (`env`).
+   Contoh lengkap: `src/vutuvuti/afcon/` (`userVo.ts`, `script.ts`, `EpisodeAfcon.tsx`).
+
 ## Karakter tetap
 
 | Karakter | File | Deskripsi |
@@ -80,7 +101,7 @@ sebagai `<Composition>` di `src/Root.tsx`.
 | `VutuVutiSheet` | Lembar karakter 4 sisi (gambar diam) |
 | `VutuVuti3DTest` | Tes versi 3D Vutu & Vuti, 10,5 detik (16:9) |
 | `EpisodePenalti` | **Gaya utama.** Vutu & Vuti episode "Penalti" di lapangan kampung saat senja, 20 detik (9:16) |
-| `EpisodeAfcon` / `EpisodeAfconSilent` | Vutu (jersey ala Senegal) & Vuti (jersey ala Maroko) bahas final AFCON 2025 dan putusan CAS. Versi bersuara butuh 13 klip suara lagi (lihat `src/vutuvuti/afcon/script.ts`); versi tanpa suara ±92 detik (9:16) |
+| `EpisodeAfcon` / `EpisodeAfconSilent` | Vutu (jersey ala Senegal) & Vuti (jersey ala Maroko) bahas final AFCON 2025 dan putusan CAS. Versi bersuara memakai rekaman suara pemilik (±94 detik); versi tanpa suara ±92 detik (9:16) |
 | `VutuVutiStreet` | Vutu & Vuti versi 3D manusia (gaya game era 2000-an) di jalanan kota, 13 detik (16:9) |
 
 ### Render di sesi cloud
