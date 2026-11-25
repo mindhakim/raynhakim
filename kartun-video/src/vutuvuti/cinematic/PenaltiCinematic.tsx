@@ -376,13 +376,19 @@ const SoundDesign: React.FC = () => {
   const muffVol = (fr: number) =>
     interpolate(fr, [f(S2 - 0.1), f(S2 + 0.2), f(T_SAVE - 0.05), f(T_SAVE + 0.1)], [0, 0.55, 0.55, 0], clamp);
   const heartbeats = [3.15, 3.85, 4.55, 5.25, 6.1, 7.0, 7.9, 8.8];
+  // Duck the crowd while a voice line plays, like a TV broadcast
+  const duck = (fr: number) => {
+    const sec = fr / fps;
+    const inLine = (a: number, d: number) => interpolate(sec, [a - 0.15, a, a + d, a + d + 0.3], [0, 1, 1, 0], clamp);
+    return 1 - 0.75 * Math.max(inLine(T_L5, L5.dur), inLine(T_L6, L6.dur));
+  };
   return (
     <>
       <Sequence from={0} durationInFrames={f(END)} layout="none">
-        <Audio src={staticFile("sfx/crowd.wav")} volume={openVol} />
+        <Audio src={staticFile("sfx/crowd.wav")} volume={(fr) => openVol(fr) * duck(fr)} />
       </Sequence>
       <Sequence from={0} durationInFrames={f(END)} layout="none">
-        <Audio src={staticFile("sfx/crowd_muffled.wav")} volume={muffVol} />
+        <Audio src={staticFile("sfx/crowd_muffled.wav")} volume={(fr) => muffVol(fr) * duck(fr)} />
       </Sequence>
       {heartbeats.map((h) => (
         <Fx key={h} at={h} src="sfx/heartbeat.wav" vol={0.9} dur={1} />
@@ -391,9 +397,11 @@ const SoundDesign: React.FC = () => {
       <Fx at={T_CONTACT - 0.3} src="sfx/whoosh.wav" vol={0.6} dur={1.3} />
       <Fx at={T_CONTACT} src="sfx/kick.wav" vol={0.9} rate={0.7} dur={1} />
       <Fx at={T_SAVE} src="sfx/catch.wav" vol={1} dur={0.6} />
-      <Fx at={T_SAVE} src="sfx/roar.wav" vol={0.9} dur={5} />
-      <Fx at={T_L5} src={L5.file} vol={1} dur={L5.dur + 0.2} />
-      <Fx at={T_L6} src={L6.file} vol={1} dur={L6.dur + 0.2} />
+      <Sequence from={Math.round(T_SAVE * fps)} durationInFrames={Math.round(5 * fps)} layout="none">
+        <Audio src={staticFile("sfx/roar.wav")} volume={(fr) => 0.9 * duck(fr + Math.round(T_SAVE * fps))} />
+      </Sequence>
+      <Fx at={T_L5} src={L5.file} vol={1.4} dur={L5.dur + 0.2} />
+      <Fx at={T_L6} src={L6.file} vol={1.4} dur={L6.dur + 0.2} />
     </>
   );
 };
