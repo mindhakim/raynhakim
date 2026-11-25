@@ -1,5 +1,7 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { Audio } from "@remotion/media";
+import { AbsoluteFill, Easing, Sequence, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { USER_VO } from "../afcon/userVo";
 import { Person } from "../Person";
 import { VUTI_MOROCCO as VI, VUTU_SENEGAL as VU } from "../looks";
 import { celebrate, idle, jump, kfs, kick, run, shrug } from "../poses";
@@ -341,6 +343,62 @@ const BallSvg: React.FC<{ rot: number }> = ({ rot }) => (
 );
 
 // ---------------------------------------------------------------------------
+// Sound design
+// ---------------------------------------------------------------------------
+
+// Video times of the key moments (world time is slowed down between SLOW_A and S4)
+const videoTime = (w: number) =>
+  w < SLOW_A ? w : w < SLOW_A + (S4 - SLOW_A) * SLOW ? SLOW_A + (w - SLOW_A) / SLOW : S4 + (w - (SLOW_A + (S4 - SLOW_A) * SLOW));
+const T_CONTACT = videoTime(CONTACT);
+const T_SAVE = videoTime(SAVE);
+
+// The owner's own recorded lines (kept locally, not in git): line 5 (Vutu) and line 6 (Vuti)
+const L5 = USER_VO[4];
+const L6 = USER_VO[5];
+const T_L5 = T_SAVE - L5.events.save; // "ditepis" lands exactly on the save
+const T_L6 = S5 + 1.0;
+
+const Fx: React.FC<{ at: number; src: string; vol?: number; rate?: number; dur?: number }> = ({ at, src, vol = 1, rate = 1, dur = 6 }) => {
+  const { fps } = useVideoConfig();
+  return (
+    <Sequence from={Math.round(at * fps)} durationInFrames={Math.round(dur * fps)} layout="none">
+      <Audio src={staticFile(src)} volume={vol} playbackRate={rate} />
+    </Sequence>
+  );
+};
+
+const SoundDesign: React.FC = () => {
+  const { fps } = useVideoConfig();
+  const f = (sec: number) => sec * fps;
+  // Crowd: open air at first, muffled "inside the head" during the close-up and slow motion, then back
+  const openVol = (fr: number) =>
+    interpolate(fr, [0, f(0.5), f(S2 - 0.1), f(S2 + 0.2), f(T_SAVE - 0.05), f(T_SAVE + 0.1), f(END)], [0, 0.32, 0.32, 0.02, 0.02, 0.5, 0.45], clamp);
+  const muffVol = (fr: number) =>
+    interpolate(fr, [f(S2 - 0.1), f(S2 + 0.2), f(T_SAVE - 0.05), f(T_SAVE + 0.1)], [0, 0.55, 0.55, 0], clamp);
+  const heartbeats = [3.15, 3.85, 4.55, 5.25, 6.1, 7.0, 7.9, 8.8];
+  return (
+    <>
+      <Sequence from={0} durationInFrames={f(END)} layout="none">
+        <Audio src={staticFile("sfx/crowd.wav")} volume={openVol} />
+      </Sequence>
+      <Sequence from={0} durationInFrames={f(END)} layout="none">
+        <Audio src={staticFile("sfx/crowd_muffled.wav")} volume={muffVol} />
+      </Sequence>
+      {heartbeats.map((h) => (
+        <Fx key={h} at={h} src="sfx/heartbeat.wav" vol={0.9} dur={1} />
+      ))}
+      <Fx at={RUN_START - 0.5} src="sfx/whistle.wav" vol={0.35} dur={1.2} />
+      <Fx at={T_CONTACT - 0.3} src="sfx/whoosh.wav" vol={0.6} dur={1.3} />
+      <Fx at={T_CONTACT} src="sfx/kick.wav" vol={0.9} rate={0.7} dur={1} />
+      <Fx at={T_SAVE} src="sfx/catch.wav" vol={1} dur={0.6} />
+      <Fx at={T_SAVE} src="sfx/roar.wav" vol={0.9} dur={5} />
+      <Fx at={T_L5} src={L5.file} vol={1} dur={L5.dur + 0.2} />
+      <Fx at={T_L6} src={L6.file} vol={1} dur={L6.dur + 0.2} />
+    </>
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -362,6 +420,11 @@ export const PenaltiCinematic: React.FC = () => {
   } else if (wt >= kickStart) {
     viPose = wt < kickStart + 1.3 ? kick((wt - kickStart) / 1.3) : idle(wt, "chill", 2);
     if (t > S5) viPose = shrug(Math.min(1, (t - S5) / 1.6));
+  }
+  // Vuti's "...aduh." from the owner's recording drives his mouth
+  if (t >= T_L6 && t < T_L6 + L6.dur) {
+    const fr = Math.floor((t - T_L6) * 30);
+    viPose = { ...viPose, mouth: L6.env[Math.min(L6.env.length - 1, fr)] ?? 0 };
   }
   // Which side of the kicker the camera sees
   const viView: View = t < S2 ? "back" : t < S4 ? "right" : t < S5 ? "back" : "front";
@@ -422,6 +485,7 @@ export const PenaltiCinematic: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: "linear-gradient(#070818 0%, #151640 45%, #2B2462 70%, #3A2E6E 100%)", overflow: "hidden" }}>
+      <SoundDesign />
       {/* Stars */}
       <svg width={W} height={H} style={{ position: "absolute" }}>
         {new Array(60).fill(0).map((_, i) => (
