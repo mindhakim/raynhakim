@@ -107,7 +107,7 @@ sebagai `<Composition>` di `src/Root.tsx`.
 | `VutuVuti3DTest` | Tes versi 3D Vutu & Vuti, 10,5 detik (16:9) |
 | `EpisodePenalti` | **Gaya utama.** Vutu & Vuti episode "Penalti" di lapangan kampung saat senja, 20 detik (9:16) |
 | `EpisodeAfcon` / `EpisodeAfconSilent` | Vutu (jersey ala Senegal) & Vuti (jersey ala Maroko) bahas final AFCON 2025 dan putusan CAS. Versi bersuara memakai rekaman suara pemilik (±94 detik); versi tanpa suara ±92 detik (9:16) |
-| `PenaltiCinematic` | Demo sinematik 2,5D: panggung 3D (lapangan, gawang, tribun) dengan karakter 2D, kamera dolly/orbit/low-angle/crane, slow-mo dan fokus kabur, 14,5 detik (9:16) |
+| `PenaltiCinematic` | Demo sinematik 2,5D: panggung 3D (lapangan, gawang, tribun) dengan karakter 2D, kamera dolly/orbit/low-angle/crane, slow-mo dan fokus kabur, 15 detik (9:16) |
 | `VutuVutiStreet` | Vutu & Vuti versi 3D manusia (gaya game era 2000-an) di jalanan kota, 13 detik (16:9) |
 
 ### Render di sesi cloud

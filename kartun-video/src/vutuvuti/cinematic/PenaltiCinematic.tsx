@@ -41,18 +41,37 @@ const KICKER_START = { x: -160, z: 160 };
 const S1 = 0; // low angle behind the kicker
 const S2 = 3.0; // close-up on the keeper
 const S3 = 5.3; // slow-motion orbit on the chip
-const S4 = 8.5; // low dutch angle: the save
-const S5 = 11.0; // wide crane: celebration
-const END = 14.5;
+const S4 = 9.0; // low dutch angle: the save
+const S5 = 11.5; // wide crane: celebration
+const END = 15.0;
 
 // Slow motion between S3 and S4: world time runs slower than video time
 const SLOW = 0.42;
-const worldTime = (t: number) => (t < S3 ? t : t < S4 ? S3 + (t - S3) * SLOW : S3 + (S4 - S3) * SLOW + (t - S4));
+const SLOW_A = 5.8; // slow motion starts just before the kick
+const worldTime = (t: number) =>
+  t < SLOW_A ? t : t < S4 ? SLOW_A + (t - SLOW_A) * SLOW : SLOW_A + (S4 - SLOW_A) * SLOW + (t - S4);
 
-const RUN_START = 5.45; // world time
+const RUN_START = 5.4; // world time
 const CONTACT = RUN_START + 0.55 + 0.47 * 1.3; // kick contact (world time)
 const FLIGHT = 0.95; // world seconds from contact to the keeper's hands
 const SAVE = CONTACT + FLIGHT;
+const KICK_START = RUN_START + 0.55;
+
+const kickerAt = (wt: number) => {
+  if (wt < RUN_START) return { x: KICKER_START.x, z: KICKER_START.z };
+  const k = Math.min(1, (wt - RUN_START) / 0.55);
+  return { x: KICKER_START.x + (SPOT.x - 70 - KICKER_START.x) * k, z: KICKER_START.z + (SPOT.z + 40 - KICKER_START.z) * k };
+};
+
+const flightAt = (wt: number) => {
+  const k = Math.min(1, Math.max(0, (wt - CONTACT) / FLIGHT));
+  return {
+    x: SPOT.x + (KEEPER.x + 10 - SPOT.x) * k,
+    y: -Math.sin(k * Math.PI * 0.62) * 560 * (1 - k * 0.15) - k * 40,
+    z: SPOT.z + (KEEPER.z + 30 - SPOT.z) * k,
+    k,
+  };
+};
 
 // ---------------------------------------------------------------------------
 // Camera
@@ -91,14 +110,21 @@ const camAt = (t: number): Cam => {
   if (t < S4) {
     // Orbit from the kicker's side towards the goal as the ball floats
     const k = interpolate(t, [S3, S4], [0, 1], ez);
-    const ang = lerp(68, 112, k); // around the penalty spot, on the right side
-    const rad = lerp(760, 820, k);
+    const wt = worldTime(t);
+    const ang = lerp(72, 104, k); // around the penalty spot, on the right side
+    const rad = lerp(720, 860, k);
     const x = SPOT.x + rad * Math.sin(d2r(ang));
     const z = SPOT.z + rad * Math.cos(d2r(ang));
-    const y = lerp(-170, -280, k);
-    const tx = lerp(-110, 0, k);
-    const tz = lerp(SPOT.z + 60, GOAL_Z + 380, k);
-    const ty = lerp(-210, -320, k);
+    const y = lerp(-180, -300, k);
+    // Before contact: frame kicker and ball. After: follow the ball towards the goal.
+    const kp = kickerAt(wt);
+    const pre = { x: (kp.x + SPOT.x) / 2, y: -230, z: (kp.z + SPOT.z) / 2 };
+    const b = flightAt(wt);
+    const post = { x: b.x, y: b.y * 0.75 - 170, z: b.z + 120 };
+    const w = interpolate(wt, [CONTACT - 0.05, CONTACT + 0.25], [0, 1], ez);
+    const tx = lerp(pre.x, post.x, w);
+    const ty = lerp(pre.y, post.y, w);
+    const tz = lerp(pre.z, post.z, w);
     const la = lookAt(x, y, z, tx, ty, tz);
     return { x, y, z, ...la, roll: lerp(3, -2, k), focus: Math.hypot(tx - x, tz - z), dof: 0.005 };
   }
@@ -113,11 +139,11 @@ const camAt = (t: number): Cam => {
   }
   // Wide crane up over the celebration
   const k = interpolate(t, [S5, END], [0, 1], ez);
-  const x = lerp(260, 200, k);
-  const y = lerp(-280, -640, k);
-  const z = lerp(260, 600, k);
+  const x = lerp(330, 230, k);
+  const y = lerp(-300, -660, k);
+  const z = lerp(720, 980, k);
   const la = lookAt(x, y, z, -20, -260, -650);
-  return { x, y, z, ...la, roll: 0, focus: Math.hypot(260, 900), dof: 0.003 };
+  return { x, y, z, ...la, roll: 0, focus: Math.hypot(330, 1300), dof: 0.002 };
 };
 
 // ---------------------------------------------------------------------------
@@ -327,17 +353,13 @@ export const PenaltiCinematic: React.FC = () => {
 
   // --- Vuti (kicker) ---
   let viPose: Pose = idle(wt, "chill", 2);
-  let viX = KICKER_START.x;
-  let viZ = KICKER_START.z;
-  const kickStart = RUN_START + 0.55;
+  const kp = kickerAt(wt);
+  const viX = kp.x;
+  const viZ = kp.z;
+  const kickStart = KICK_START;
   if (wt >= RUN_START && wt < kickStart) {
-    const k = (wt - RUN_START) / 0.55;
     viPose = run(wt, 2);
-    viX = lerp(KICKER_START.x, SPOT.x - 70, k);
-    viZ = lerp(KICKER_START.z, SPOT.z + 40, k);
   } else if (wt >= kickStart) {
-    viX = SPOT.x - 70;
-    viZ = SPOT.z + 40;
     viPose = wt < kickStart + 1.3 ? kick((wt - kickStart) / 1.3) : idle(wt, "chill", 2);
     if (t > S5) viPose = shrug(Math.min(1, (t - S5) / 1.6));
   }
@@ -356,39 +378,45 @@ export const PenaltiCinematic: React.FC = () => {
     vuPose.look = Math.sin(t * 3.2) * 0.8;
   }
   const jumpStart = SAVE - 0.4;
-  if (wt >= jumpStart && wt < jumpStart + 1.2) vuPose = jump(Math.min(1, (wt - jumpStart) / 1.2), 150, "playful");
+  const jumpU = (wt - jumpStart) / 1.2;
+  const jumping = jumpU >= 0 && jumpU < 1;
+  // Hands stay up with the ball until the landing, then the ball is hugged at the chest
+  const holding = jumpU >= 0.72;
+  if (jumping) vuPose = jump(Math.min(1, jumpU), 150, "playful");
+  if (holding) {
+    vuPose.armA = { sh: 80, el: 70, ab: 20, elAb: 40 };
+    vuPose.armB = { sh: 80, el: 70, ab: 20, elAb: 40 };
+    vuPose.mouth = 0.8;
+    vuPose.brow = 1;
+  }
   let vuZ = KEEPER.z;
   if (t >= S5) {
-    vuPose = celebrate(t - S5, 1);
-    vuZ = interpolate(t, [S5 + 0.2, S5 + 1.8], [KEEPER.z, -620], ez);
+    const runEnd = S5 + 1.4;
+    vuZ = interpolate(t, [S5 + 0.1, runEnd], [KEEPER.z, -480], ez);
+    vuPose = t < runEnd ? run(t, 1) : celebrate(t - runEnd, 1);
+    vuPose.armA = { sh: 0, el: 10, ab: 160, elAb: 10 };
+    vuPose.armB = { sh: 0, el: 10, ab: 160, elAb: 10 };
   }
   const vuView: View = t >= S3 && t < S4 ? "left" : "front";
 
   // --- Ball ---
   let ball = { x: SPOT.x, y: 0, z: SPOT.z, rot: 0, show: true };
   if (wt >= CONTACT && wt < SAVE) {
-    const k = (wt - CONTACT) / FLIGHT;
-    ball = {
-      x: lerp(SPOT.x, KEEPER.x + 10, k),
-      y: -Math.sin(k * Math.PI * 0.62) * 560 * (1 - k * 0.15) - k * 40,
-      z: lerp(SPOT.z, KEEPER.z + 30, k),
-      rot: k * 260,
-      show: true,
-    };
+    const f = flightAt(wt);
+    ball = { x: f.x, y: f.y, z: f.z, rot: f.k * 260, show: true };
   } else if (wt >= SAVE) {
-    // Caught: rides with the keeper's hands, then gets held up
-    const jumpU = Math.min(1, (wt - jumpStart) / 1.2);
-    const air = jumpU > 0.25 && jumpU < 0.8 ? Math.sin(((jumpU - 0.25) / 0.55) * Math.PI) : 0;
-    ball = { x: KEEPER.x + 10, y: -470 - air * 150 * 0.9, z: KEEPER.z + 30, rot: 260, show: t < S5 };
+    // Caught between the raised hands, then hugged at the chest, then lifted up in the celebration
+    if (t >= S5) ball = { x: KEEPER.x + 6, y: vuPose.y * 0.9 - 600, z: vuZ + 8, rot: 260, show: true };
+    else if (!holding) ball = { x: KEEPER.x + 6, y: vuPose.y * 0.9 - 560, z: KEEPER.z + 8, rot: 260, show: true };
+    else ball = { x: KEEPER.x + 4, y: vuPose.y * 0.9 - 250, z: KEEPER.z + 40, rot: 260, show: true };
   }
 
   // Effects
-  const flash = Math.max(0, 1 - Math.abs(wt - SAVE) * 6);
+  const flash = Math.max(0, 1 - Math.abs(wt - SAVE) * 6) * 0.7;
   const shake = wt > SAVE && wt < SAVE + 0.35 ? Math.sin(t * 90) * 14 * (1 - (wt - SAVE) / 0.35) : 0;
   const cutFlash = [S2, S3, S4, S5].reduce((m, c) => Math.max(m, Math.max(0, 1 - Math.abs(t - c) * 8)), 0);
   const letterbox = interpolate(t, [S3 - 0.2, S3 + 0.3, S4 - 0.1, S4 + 0.2], [0, 1, 1, 0], clamp);
   const hype = interpolate(wt, [SAVE, SAVE + 0.4], [0, 1], clamp);
-  const netShake = 0;
 
   const world = `translateZ(${P}px) rotateZ(${cam.roll}deg) rotateX(${cam.pitch}deg) rotateY(${cam.yaw}deg) translate3d(${-cam.x}px, ${-cam.y}px, ${-cam.z}px)`;
 
@@ -406,7 +434,7 @@ export const PenaltiCinematic: React.FC = () => {
           <Floodlights cam={cam} t={t} />
           <Stands cam={cam} t={t} hype={hype} />
           <Ground />
-          <Goal shake={netShake} />
+          <Goal shake={0} />
           {/* Draw far to near so nearer cut-outs cover farther ones */}
           {[
             { z: vuZ, node: <Char key="vu" cam={cam} x={KEEPER.x} z={vuZ} look={VU} pose={vuPose} view={vuView} /> },
@@ -470,7 +498,7 @@ export const PenaltiCinematic: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          top: 900,
+          top: 560,
           width: "100%",
           textAlign: "center",
           fontFamily: FONT,
