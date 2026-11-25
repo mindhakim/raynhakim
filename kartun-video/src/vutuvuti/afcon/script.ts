@@ -1,3 +1,5 @@
+import { USER_VO } from "./userVo";
+
 // Dialogue + timing for the AFCON / CAS episode.
 // `dur` is the real clip length in seconds once the voice exists; until then it is an estimate.
 // `file` is set only for clips that exist in public/vo/afcon/.
@@ -32,16 +34,17 @@ export const LINES: Line[] = [
   { who: "vuti", text: "Wasit yang ngelanjutin pertandingan, itu wewenang dia. Aturan kalah WO cuma berlaku kalau laganya dihentikan total.", dur: 7.5 },
   { who: "vutu", text: "Hasil 1–0 SAH! Senegal juara LAGI!", dur: 3.5 },
   { who: "vuti", text: "Jadi... walk-out itu boleh?", dur: 2.4 },
-  { who: "vutu", text: "Ya nggak gitu juga! Sanksi disiplinnya dibahas terpisah.", dur: 4.0 },
-  { who: "vuti", text: "Kalau menurut kalian?", dur: 1.8 },
+  { who: "vutu", text: "Hahaha, ya nggak gitu juga! Sanksi disiplinnya dibahas terpisah.", dur: 4.0 },
+  { who: "vuti", text: "Gimana menurut kalian?", dur: 1.8 },
 ];
 
-export const RATE = 1.08; // slightly faster delivery keeps it near one minute
+// The owner recorded the voices; play them at natural speed
+export const RATE = 1.0;
 export const GAP = 0.3;
 export const LEAD_IN = 0.3;
 export const OUTRO = 2.8;
 
-export type Slot = Line & { start: number; end: number; i: number };
+export type Slot = Line & { start: number; end: number; i: number; events: Record<string, number>; env: readonly number[] };
 
 // Silent version: no voice clips and a slightly slower pace so the subtitles are easy to read
 export const SILENT_RATE = 0.92;
@@ -50,8 +53,20 @@ export const schedule = (silent = false): Slot[] => {
   let t = LEAD_IN;
   const rate = silent ? SILENT_RATE : RATE;
   return LINES.map((l, i) => {
-    const d = l.dur / rate;
-    const s: Slot = { ...l, file: silent ? undefined : l.file, start: t, end: t + d, i };
+    const vo = USER_VO[i];
+    const d = (vo ? vo.dur : l.dur) / rate;
+    const scale = silent ? 1 / rate : 1;
+    const events: Record<string, number> = {};
+    if (vo) for (const [k, v] of Object.entries(vo.events)) events[k] = (v as number) * scale;
+    const s: Slot = {
+      ...l,
+      file: silent ? undefined : vo ? vo.file : l.file,
+      start: t,
+      end: t + d,
+      i,
+      events,
+      env: silent || !vo ? [] : vo.env,
+    };
     t += d + GAP;
     return s;
   });

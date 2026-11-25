@@ -398,7 +398,8 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
   const lt = t - slot.start; // local time in the scene
   const dur = slot.end - slot.start;
   const u = Math.min(1, Math.max(0, lt / dur));
-  const speaking = (who: "vutu" | "vuti") => slots.some((s) => s.who === who && t >= s.start && t <= s.end);
+  const ev = slot.events;
+  const at = (k: string, fallback: number) => (ev[k] !== undefined ? ev[k] : fallback);
 
   const vu: Actor = { x: VU_X, ground: GROUND, scale: 1, view: "front", pose: idle(t, "playful", 1), show: true };
   const vi: Actor = { x: VI_X, ground: GROUND, scale: 1, view: "front", pose: idle(t, "chill", 2), show: true };
@@ -430,12 +431,14 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
       // Hook: the trophy flies away and comes back
       const a = trophyAt("vutu");
       const b = trophyAt("vuti");
-      const k1 = interpolate(lt, [1.6, 2.6], [0, 1], clamp);
-      const k2 = interpolate(lt, [3.4, 4.4], [0, 1], clamp);
+      const away = at("away", 1.7);
+      const back = at("back", 3.5);
+      const k1 = interpolate(lt, [away - 0.1, away + 0.8], [0, 1], clamp);
+      const k2 = interpolate(lt, [back - 0.1, back + 0.8], [0, 1], clamp);
       trophy = k2 > 0 ? fly(b, a, k2) : fly(a, b, k1);
-      vu.pose = k2 >= 1 ? celebrate(lt, 1) : k1 > 0.5 ? mix(idle(t, "playful", 1), shrug(Math.min(1, (lt - 2) / 1.2)), 1) : talk(t, "playful", 1);
+      vu.pose = k2 >= 1 ? celebrate(lt, 1) : k1 > 0.5 ? mix(idle(t, "playful", 1), shrug(Math.min(1, (lt - away) / 1.2)), 1) : talk(t, "playful", 1);
       if (k1 >= 1 && k2 < 0.5) vi.pose.brow = 0.5;
-      if (k2 >= 1) confettiAt = slot.start + 4.4;
+      if (k2 >= 1) confettiAt = slot.start + back + 0.8;
       break;
     }
     case 1: {
@@ -446,7 +449,7 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
       // VAR → penalty → walk-out
       score = { a: "0", b: "0", note: "90+'" };
       extras.push(<VarScreen key="var" t={t} />);
-      const walkStart = dur * 0.62;
+      const walkStart = at("walk", dur * 0.62);
       if (lt > walkStart) {
         const k = lt - walkStart;
         vu.view = "left";
@@ -492,9 +495,9 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
       vi.view = "right";
       vi.x = 190;
       vi.ground = GROUND;
-      const kickStart = dur * 0.4;
-      const contact = kickStart + 0.47 * 1.3;
-      const save = contact + 1.0;
+      const contact = at("contact", dur * 0.4 + 0.61);
+      const kickStart = contact - 0.47 * 1.3;
+      const save = Math.max(contact + 0.6, at("save", contact + 1.0));
       if (lt < kickStart) {
         vi.pose = lt < kickStart - 0.6 ? idle(t, "chill", 2) : run(lt, 2);
         vi.x = 190 + Math.max(0, lt - (kickStart - 0.6)) * 120;
@@ -532,14 +535,14 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
     }
     case 6: {
       // Extra-time long shot
-      score = { a: lt > dur * 0.7 ? "1" : "0", b: "0", note: "ET" };
+      score = { a: lt > at("goal", dur * 0.7) ? "1" : "0", b: "0", note: "ET" };
       goal = { x: 820, ground: 1360, w: 400, h: 280, shake: 0 };
       vu.view = "right";
       vu.x = 200;
       vi.show = false;
-      const kickStart = dur * 0.3;
-      const contact = kickStart + 0.47 * 1.3;
-      const inNet = contact + 0.8;
+      const contact = at("contact", dur * 0.3 + 0.61);
+      const kickStart = contact - 0.47 * 1.3;
+      const inNet = Math.max(contact + 0.6, at("goal", contact + 0.8));
       if (lt < kickStart) vu.pose = idle(t, "playful", 1);
       else if (lt < inNet + 0.4) vu.pose = kick(Math.min(1, (lt - kickStart) / 1.3));
       else {
@@ -566,10 +569,11 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
     case 7: {
       // CAF appeal: trophy moves to Vuti
       score = { a: "0", b: "3", note: "WO" };
-      const k = interpolate(lt, [dur * 0.55, dur * 0.55 + 1], [0, 1], clamp);
+      const move = at("move", dur * 0.55);
+      const k = interpolate(lt, [move, move + 1], [0, 1], clamp);
       trophy = fly(trophyAt("vutu"), trophyAt("vuti"), k);
-      extras.push(<Paper key="paper" x={VI_X + 120} y={GROUND - 260} text="BANDING" />);
-      vu.pose = k >= 1 ? shrug(Math.min(1, (lt - dur * 0.55 - 1) / 1.5)) : idle(t, "playful", 1);
+      if (lt >= at("paper", 0)) extras.push(<Paper key="paper" x={VI_X + 120} y={GROUND - 260} text="BANDING" />);
+      vu.pose = k >= 1 ? shrug(Math.min(1, (lt - move - 1) / 1.5)) : idle(t, "playful", 1);
       vu.pose.brow = k >= 1 ? -0.8 : 0;
       vi.pose = talk(t, "chill", 2);
       break;
@@ -591,8 +595,8 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
       vu.x = 290;
       vi.x = 790;
       if (si === 10) {
-        overlays.push(<InfoCard key="c1" text="Lanjut main = wewenang wasit" y={1120} k={lt - 0.5} color="#00853F" />);
-        overlays.push(<InfoCard key="c2" text="Kalah WO = laga dihentikan total" y={1230} k={lt - dur * 0.5} color="#C1272D" />);
+        overlays.push(<InfoCard key="c1" text="Lanjut main = wewenang wasit" y={1120} k={lt - at("card1", 0.5)} color="#00853F" />);
+        overlays.push(<InfoCard key="c2" text="Kalah WO = laga dihentikan total" y={1230} k={lt - at("card2", dur * 0.5)} color="#C1272D" />);
       }
       break;
     }
@@ -604,11 +608,12 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
       const bang = interpolate(lt, [0, 0.25, 0.4], [-40, 20, 0], clamp);
       extras.push(<Gavel key="gavel" x={680} y={640} ang={bang} />);
       if (lt > 0.25) shake = Math.sin(t * 80) * Math.max(0, 12 - (lt - 0.25) * 40);
-      const k = interpolate(lt, [0.4, 1.4], [0, 1], clamp);
+      const sah = at("sah", 0.4);
+      const k = interpolate(lt, [sah - 0.2, sah + 0.8], [0, 1], clamp);
       trophy = k < 1 ? fly(trophyAt("vuti"), trophyAt("vutu"), k) : trophyAt("vutu", true);
       vu.pose = k >= 1 ? celebrate(lt, 1) : idle(t, "playful", 1);
-      score = { a: "1", b: "0", note: "SAH" };
-      if (k >= 1) confettiAt = slot.start + 1.4;
+      score = lt >= sah ? { a: "1", b: "0", note: "SAH" } : { a: "0", b: "3", note: "WO" };
+      if (k >= 1) confettiAt = slot.start + sah + 0.8;
       break;
     }
     default: {
@@ -621,8 +626,17 @@ export const EpisodeAfcon: React.FC<{ silent?: boolean }> = ({ silent = false })
   }
 
   // Lip-sync: whoever is speaking moves their mouth
-  if (speaking("vutu") && vu.show) vu.pose = { ...vu.pose, mouth: Math.max(vu.pose.mouth, speech(t)) };
-  if (speaking("vuti") && vi.show) vi.pose = { ...vi.pose, mouth: Math.max(vi.pose.mouth, speech(t) * 0.8) };
+  const mouthFor = (who: "vutu" | "vuti") => {
+    const s = slots.find((x) => x.who === who && t >= x.start && t <= x.end);
+    if (!s) return null;
+    if (s.env.length === 0) return speech(t);
+    const f = Math.floor((t - s.start) * 30);
+    return s.env[Math.min(s.env.length - 1, Math.max(0, f))] ?? 0;
+  };
+  const mVu = mouthFor("vutu");
+  const mVi = mouthFor("vuti");
+  if (mVu !== null && vu.show) vu.pose = { ...vu.pose, mouth: Math.max(vu.pose.mouth, mVu) };
+  if (mVi !== null && vi.show) vi.pose = { ...vi.pose, mouth: Math.max(vi.pose.mouth, mVi * 0.9) };
 
   // Camera: gentle push-in per scene, quick pop on every cut
   const pop = 1 + Math.max(0, 0.06 - lt * 0.3);
