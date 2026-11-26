@@ -5,6 +5,7 @@ import { VutuVutiSheet, VutuVutiShowcase } from "./vutuvuti/Showcase";
 import { VutuVuti3DTest } from "./vutuvuti/Test3D";
 import { VutuVutiStreet } from "./human/StreetTest";
 import { EpisodePenalti } from "./vutuvuti/EpisodePenalti";
+import { CharacterAsset } from "./vutuvuti/assets/CharacterAsset";
 import { PENALTI_CINEMATIC_FRAMES, PenaltiCinematic } from "./vutuvuti/cinematic/PenaltiCinematic";
 import { EpisodeAfcon, afconFrames } from "./vutuvuti/afcon/EpisodeAfcon";
 
@@ -76,6 +77,15 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={1080}
         height={1920}
+      />
+      <Composition
+        id="CharacterAsset"
+        component={CharacterAsset}
+        durationInFrames={60}
+        fps={30}
+        width={1000}
+        height={1300}
+        defaultProps={{ who: "vutu", pose: "idle", view: "front" }}
       />
       <Still id="VutuVutiSheet" component={VutuVutiSheet} width={1920} height={1080} />
     </>
