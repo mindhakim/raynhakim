@@ -1,11 +1,11 @@
 // Renders the Vutu & Vuti asset pack: transparent PNG stills + transparent animated loops.
-// Usage: node tools/assets/render-assets.mjs <outDir> <chromiumPath>
+// Usage: node tools/assets/render-assets.mjs <outDir> <chromiumPath> [stills|loops|all]
 import { bundle } from "@remotion/bundler";
 import { renderStill, renderMedia, selectComposition } from "@remotion/renderer";
 import path from "node:path";
 import fs from "node:fs";
 
-const [outDir, browserExecutable] = process.argv.slice(2);
+const [outDir, browserExecutable, mode = "all"] = process.argv.slice(2);
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
 const who = ["vutu", "vuti"];
 const stills = [
@@ -18,18 +18,18 @@ const loops = [["idle", "front", 2], ["talk", "front", 3], ["wave", "front", 2],
 for (const w of who) {
   fs.mkdirSync(`${outDir}/${w}/png`, { recursive: true });
   fs.mkdirSync(`${outDir}/${w}/animasi`, { recursive: true });
-  for (const [pose, view, t] of stills) {
+  for (const [pose, view, t] of mode === "loops" ? [] : stills) {
     const inputProps = { who: w, pose, view, t };
     const composition = await selectComposition({ serveUrl, id: "CharacterAsset", inputProps, browserExecutable });
     await renderStill({ composition, serveUrl, inputProps, output: `${outDir}/${w}/png/${w}-${pose}-${view}.png`, imageFormat: "png", browserExecutable });
     console.log("png", w, pose, view);
   }
-  for (const [pose, view, sec] of loops) {
+  for (const [pose, view, sec] of mode === "stills" ? [] : loops) {
     const inputProps = { who: w, pose, view };
     const composition = await selectComposition({ serveUrl, id: "CharacterAsset", inputProps, browserExecutable });
     const c = { ...composition, durationInFrames: Math.round(sec * 30) };
-    await renderMedia({ composition: c, serveUrl, inputProps, codec: "vp9", pixelFormat: "yuva420p", imageFormat: "png", output: `${outDir}/${w}/animasi/${w}-${pose}.webm`, browserExecutable });
-    await renderMedia({ composition: c, serveUrl, inputProps, codec: "prores", proResProfile: "4444", pixelFormat: "yuva444p10le", imageFormat: "png", output: `${outDir}/${w}/animasi/${w}-${pose}.mov`, browserExecutable });
+    await renderMedia({ composition: c, serveUrl, inputProps, codec: "vp9", pixelFormat: "yuva420p", imageFormat: "png", outputLocation: path.resolve(`${outDir}/${w}/animasi/${w}-${pose}.webm`), browserExecutable });
+    await renderMedia({ composition: c, serveUrl, inputProps, codec: "prores", proResProfile: "4444", pixelFormat: "yuva444p10le", imageFormat: "png", outputLocation: path.resolve(`${outDir}/${w}/animasi/${w}-${pose}.mov`), browserExecutable });
     console.log("loop", w, pose);
   }
 }
