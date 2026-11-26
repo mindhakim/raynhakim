@@ -56,6 +56,12 @@ lalu Claude menyinkronkannya. Tidak memakai kredit ElevenLabs.
 6. Di animasi: momen penting mengikuti waktu kata (`events`), dan mulut mengikuti amplop suara (`env`).
    Contoh lengkap: `src/vutuvuti/afcon/` (`userVo.ts`, `script.ts`, `EpisodeAfcon.tsx`).
 
+## VO otomatis gratis (cadangan kalau kredit habis dan pemilik tidak merekam)
+
+Piper TTS bahasa Indonesia (`id_ID-news_tts-medium`, suara pembaca berita) jalan offline di sesi.
+Langkah dan skrip: `kartun-video/tools/vo/jesus/README.md`. Piper kadang menelan bunyi pertama kalimat,
+jadi buat beberapa versi per kalimat dan pilih otomatis lewat transkrip whisper.
+
 ## Karakter tetap
 
 | Karakter | File | Deskripsi |

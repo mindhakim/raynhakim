@@ -1,4 +1,4 @@
-import { SYNC_STARTS, SYNC_WORDS } from "./sync";
+import { SYNC_STARTS, SYNC_TOTAL, SYNC_WORDS } from "./sync";
 
 // Shot timeline for "Gabriel Jesus Nyalip Suárez" (frames at 30 fps).
 // ORIG is the frame table from the shot list. Once the voice over exists, sync.ts holds the
@@ -6,7 +6,8 @@ import { SYNC_STARTS, SYNC_WORDS } from "./sync";
 // stretched to match through at().
 
 export const FPS = 30;
-export const TOTAL = 1569;
+export const ORIG_TOTAL = 1569;
+export const TOTAL = SYNC_TOTAL ?? ORIG_TOTAL;
 
 export const SHOT_IDS = ["C", "1A", "1B", "2A", "2B", "2C", "2D", "3A", "3B", "3C", "4A", "4B", "4C", "5A", "5B", "6A", "6B"] as const;
 export type ShotId = (typeof SHOT_IDS)[number];
@@ -33,9 +34,9 @@ export const ORIG: Record<ShotId, number> = {
 
 export const STARTS: Record<ShotId, number> = { ...ORIG, ...SYNC_STARTS };
 
-const endOf = (starts: Record<ShotId, number>, id: ShotId) => {
+const endOf = (starts: Record<ShotId, number>, id: ShotId, total = TOTAL) => {
   const i = SHOT_IDS.indexOf(id);
-  return i === SHOT_IDS.length - 1 ? TOTAL : starts[SHOT_IDS[i + 1]];
+  return i === SHOT_IDS.length - 1 ? total : starts[SHOT_IDS[i + 1]];
 };
 
 export const shotStart = (id: ShotId) => STARTS[id];
@@ -53,7 +54,7 @@ export const kOf = (id: ShotId, f: number) => Math.min(1, Math.max(0, (f - shotS
 
 // A moment given in shot-list frames, moved to the synced timeline
 export const at = (id: ShotId, origFrame: number) => {
-  const od = endOf(ORIG, id) - ORIG[id];
+  const od = endOf(ORIG, id, ORIG_TOTAL) - ORIG[id];
   return shotStart(id) + ((origFrame - ORIG[id]) * shotDur(id)) / od;
 };
 
