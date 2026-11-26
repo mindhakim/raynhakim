@@ -53,4 +53,10 @@ export type Look = {
   // Optional national-style trim: colored bands across the chest, and the color of the jersey text
   stripes?: string[];
   textColor?: string;
+  // Optional club-style kit: vertical stripes across the whole shirt (colors repeat left to right)
+  vstripes?: string[];
+  // Small badge on the left chest: an image URL, or "generic" for a plain striped shield
+  crest?: string;
+  // Optional beard color (older supporting characters)
+  beard?: string;
 };

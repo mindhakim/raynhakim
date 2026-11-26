@@ -108,6 +108,7 @@ sebagai `<Composition>` di `src/Root.tsx`.
 | `EpisodePenalti` | **Gaya utama.** Vutu & Vuti episode "Penalti" di lapangan kampung saat senja, 20 detik (9:16) |
 | `EpisodeAfcon` / `EpisodeAfconSilent` | Vutu (jersey ala Senegal) & Vuti (jersey ala Maroko) bahas final AFCON 2025 dan putusan CAS. Versi bersuara memakai rekaman suara pemilik (±94 detik); versi tanpa suara ±92 detik (9:16) |
 | `PenaltiCinematic` | Demo sinematik 2,5D: panggung 3D (lapangan, gawang, tribun) dengan karakter 2D, kamera dolly/orbit/low-angle/crane, slow-mo dan fokus kabur, 15 detik (9:16) |
+| `JesusSuarez` | Vutu (= Gabriel Jesus) & Vuti (= Suárez) berjersey garis Barça di lapangan kampung malam: podium, bangku bambu, papan tulis, poster MSN, tangga peringkat, papan dukungan. 52 detik (9:16). Caption satu kata, logo vutbaler, musik samba original. Timeline di `src/vutuvuti/jesus/timeline.ts`; setelah VO ada, isi `sync.ts` lalu taruh suara di `public/jesus/vo.mp3` (otomatis dipakai). Logo klub asli: taruh `public/fcb.png` (otomatis dipakai, kalau tidak ada pakai lencana generik) |
 | `VutuVutiStreet` | Vutu & Vuti versi 3D manusia (gaya game era 2000-an) di jalanan kota, 13 detik (16:9) |
 
 ### Render di sesi cloud

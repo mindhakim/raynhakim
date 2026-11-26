@@ -260,6 +260,9 @@ const HeadFront: React.FC<{ look: Look; pose: Pose; back: boolean }> = ({ look, 
       <path d={face} fill={look.skin} stroke={OUT} strokeWidth={OW} strokeLinejoin="round" />
       {back ? null : (
         <>
+          {look.beard ? (
+            <path d="M -74 -66 Q -70 2 0 6 Q 70 2 74 -66 Q 50 -30 0 -36 Q -50 -30 -74 -66 Z" fill={look.beard} stroke={OUT} strokeWidth={5} strokeLinejoin="round" />
+          ) : null}
           {/* Jaw shading */}
           <path
             d={square ? "M -70 -30 Q 0 -6 70 -30" : "M -56 -30 Q 0 -4 56 -30"}
@@ -346,6 +349,9 @@ const HeadSide: React.FC<{ look: Look; pose: Pose }> = ({ look, pose }) => {
         )}
       </g>
       {playful ? <ellipse cx={58} cy={-72} rx={11} ry={6} fill="#FF7FA8" opacity={0.55} /> : null}
+      {look.beard ? (
+        <path d="M 94 -70 Q 92 -4 40 -4 Q -14 -2 -34 -40 Q 20 -28 64 -46 Z" fill={look.beard} stroke={OUT} strokeWidth={5} strokeLinejoin="round" />
+      ) : null}
       {/* Mouth */}
       {playful ? (
         <path
@@ -405,18 +411,57 @@ const HeadSide: React.FC<{ look: Look; pose: Pose }> = ({ look, pose }) => {
 // Torso
 // ---------------------------------------------------------------------------
 
+const SIDE_JERSEY = "M -32 -172 Q 10 -184 36 -168 Q 54 -100 46 8 Q 0 16 -40 8 Q -48 -90 -32 -172 Z";
+const FRONT_JERSEY = "M -66 -170 Q -42 -182 -22 -176 L 0 -148 L 22 -176 Q 42 -182 66 -170 L 76 -138 L 62 10 Q 0 20 -62 10 L -76 -138 Z";
+const BACK_JERSEY = "M -66 -170 Q 0 -160 66 -170 L 76 -138 L 62 10 Q 0 20 -62 10 L -76 -138 Z";
+
+// Club-style vertical stripes, clipped to the shirt, with the outline drawn again on top
+const VStripes: React.FC<{ look: Look; d: string; id: string }> = ({ look, d, id }) => {
+  const cols = look.vstripes ?? [];
+  const w = 26;
+  return (
+    <g>
+      <defs>
+        <clipPath id={id}>
+          <path d={d} />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${id})`}>
+        {new Array(8).fill(0).map((_, i) => (
+          <rect key={i} x={-104 + i * w} y={-190} width={w + 0.5} height={220} fill={cols[i % cols.length]} />
+        ))}
+      </g>
+      <path d={d} fill="none" stroke={OUT} strokeWidth={OW} strokeLinejoin="round" />
+    </g>
+  );
+};
+
+// Small chest badge. "generic" draws a plain shield; anything else is an image URL.
+const Crest: React.FC<{ src: string; x: number; y: number }> = ({ src, x, y }) =>
+  src === "generic" ? (
+    <g transform={`translate(${x} ${y})`}>
+      <path d="M -15 -16 L 15 -16 L 15 2 Q 15 14 0 20 Q -15 14 -15 2 Z" fill="#FFD23F" stroke={OUT} strokeWidth={3.5} />
+      <path d="M -11 -4 L 11 -4 L 11 3 Q 11 11 0 16 Q -11 11 -11 3 Z" fill="#004D98" />
+      <path d="M -4 -4 L 4 -4 L 4 15 Q 0 16.5 -4 15 Z" fill="#A50044" />
+      <path d="M -11 -13 L 11 -13 L 11 -7 L -11 -7 Z" fill="white" />
+    </g>
+  ) : (
+    <image href={src} x={x - 20} y={y - 22} width={40} height={44} preserveAspectRatio="xMidYMid meet" />
+  );
+
 const Torso: React.FC<{ look: Look; view: "front" | "back" | "side" }> = ({ look, view }) => {
   if (view === "side") {
     return (
       <g>
         <path d="M -40 -6 Q 0 -14 42 -6 L 46 34 Q 0 42 -44 34 Z" fill={look.shorts} stroke={OUT} strokeWidth={OW} strokeLinejoin="round" />
         <path
-          d="M -32 -172 Q 10 -184 36 -168 Q 54 -100 46 8 Q 0 16 -40 8 Q -48 -90 -32 -172 Z"
+          d={SIDE_JERSEY}
           fill={look.jersey}
           stroke={OUT}
           strokeWidth={OW}
           strokeLinejoin="round"
         />
+        {look.vstripes ? <VStripes look={look} d={SIDE_JERSEY} id="jclip-side" /> : null}
         <path d="M -38 -40 Q 0 -30 44 -40" stroke={look.jerseyShade} strokeWidth={8} fill="none" opacity={0.6} />
         {(look.stripes ?? []).map((c, i) => (
           <line key={c + i} x1={-34} y1={-150 + i * 8} x2={42} y2={-150 + i * 8} stroke={c} strokeWidth={8} />
@@ -434,17 +479,8 @@ const Torso: React.FC<{ look: Look; view: "front" | "back" | "side" }> = ({ look
         strokeWidth={OW}
         strokeLinejoin="round"
       />
-      <path
-        d={
-          back
-            ? "M -66 -170 Q 0 -160 66 -170 L 76 -138 L 62 10 Q 0 20 -62 10 L -76 -138 Z"
-            : "M -66 -170 Q -42 -182 -22 -176 L 0 -148 L 22 -176 Q 42 -182 66 -170 L 76 -138 L 62 10 Q 0 20 -62 10 L -76 -138 Z"
-        }
-        fill={look.jersey}
-        stroke={OUT}
-        strokeWidth={OW}
-        strokeLinejoin="round"
-      />
+      <path d={back ? BACK_JERSEY : FRONT_JERSEY} fill={look.jersey} stroke={OUT} strokeWidth={OW} strokeLinejoin="round" />
+      {look.vstripes ? <VStripes look={look} d={back ? BACK_JERSEY : FRONT_JERSEY} id={back ? "jclip-back" : "jclip-front"} /> : null}
       {back ? (
         <path d="M -40 -168 Q 0 -158 40 -168" stroke={look.jerseyShade} strokeWidth={8} fill="none" />
       ) : (
@@ -465,9 +501,12 @@ const Torso: React.FC<{ look: Look; view: "front" | "back" | "side" }> = ({ look
           </text>
         </>
       ) : (
-        <text x={0} y={-82} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={38} fill={look.textColor ?? "white"} stroke={OUT} strokeWidth={6} paintOrder="stroke">
-          {look.sponsor}
-        </text>
+        <>
+          <text x={0} y={-82} textAnchor="middle" fontFamily={FONT} fontWeight={900} fontSize={38} fill={look.textColor ?? "white"} stroke={OUT} strokeWidth={6} paintOrder="stroke">
+            {look.sponsor}
+          </text>
+          {look.crest ? <Crest src={look.crest} x={36} y={-136} /> : null}
+        </>
       )}
     </g>
   );

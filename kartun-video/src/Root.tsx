@@ -8,6 +8,7 @@ import { EpisodePenalti } from "./vutuvuti/EpisodePenalti";
 import { CharacterAsset } from "./vutuvuti/assets/CharacterAsset";
 import { PENALTI_CINEMATIC_FRAMES, PenaltiCinematic } from "./vutuvuti/cinematic/PenaltiCinematic";
 import { EpisodeAfcon, afconFrames } from "./vutuvuti/afcon/EpisodeAfcon";
+import { JESUS_SUAREZ_FRAMES, JesusSuarez } from "./vutuvuti/jesus/JesusSuarez";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -74,6 +75,14 @@ export const RemotionRoot: React.FC = () => {
         id="PenaltiCinematic"
         component={PenaltiCinematic}
         durationInFrames={PENALTI_CINEMATIC_FRAMES}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="JesusSuarez"
+        component={JesusSuarez}
+        durationInFrames={JESUS_SUAREZ_FRAMES}
         fps={30}
         width={1080}
         height={1920}
